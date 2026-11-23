@@ -25,6 +25,26 @@ server:
   extraArgs:
     web.enable-remote-write-receiver: ""
 
+
+# Larmregler. OBS: serverFiles ligger på TOPPNIVÅ i chartens values - inte
+# under server:. Under server: ignoreras den tyst och /alerts blir tom.
+serverFiles:
+  alerting_rules.yml:
+    groups:
+      - name: mysql_alerts
+        rules:
+          # mysqld-exportern är en sidecar i mysql-0. Skalas StatefulSet:en
+          # till 0 försvinner även exportern - då finns ingen mysql_up-serie
+          # alls, och "mysql_up == 0" blir aldrig sant. absent() fångar det.
+          - alert: MySQLDown
+            expr: mysql_up == 0 or absent(mysql_up)
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "MySQL-instansen är nere"
+              description: "MySQL svarar inte, eller så rapporterar exportern inte alls (podden saknas), sedan mer än 1 minut."
+
 # Applikationernas metrics hämtas från otel-collectorn (port 8889). Chartens
 # inbyggda jobb "kubernetes-service-endpoints" skrapar alla Services med
 # annotationen prometheus.io/scrape: "true" - den sitter på otel-collector-

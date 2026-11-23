@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: customers-db
+  namespace: customers
+spec:
+  encryptedData:
+    connectionString: AgAS3Wcf84PziwoBz/2xTaFoOl+M3E6u87X6nrF+pNKLVGCZQ3Tf3d5u03ZtPuF0kCaHXOViog1PL7Ayghk+lsBD8a4iOn2PH1vHrLZUqab8HAiBoptJOW7PCD2Zqs+MGYuurObkHonbgk55ngbVBuQtc3LbwRE77n3Cn0T1B7BCfmXJcEDyM24wILe7Feogq1BDQc7ER5dMGiTAI3jlRSjzZWSLtD5+9YXeD58/LQ1JIVsNaBC9G05X4KfQjirpYDuiVuaGPmfjttuf/9IPsTG/L0vRza0hTYmlYOcC7bR5cIjgaHDG2jkrYAc1IkiivbwVt7l5MphpTqFQ++PPy5R4XruaxlWBmSyax+viz1d62xAToyhyOVnSERQuOe7FJcF5dGzcuSwOKBErX0pUyeEQXZDNSKVEFZAc6MoS71j3zljQXpXQjRJsQi8GE7tTnrr3VooLcaZfFeb/2sTf46MfdJx7Xl0SnEoDSTMXMH8fu50gs+TyCNKVKLIXYb8StNYYfWhazibHKACOMqfxJl75rhhhOGjxs18c26OIH0UA1cGpe97U9oefDo0jpLGL0a71peOIEJay2vqGl1an2tY5dsgrP66EbhdMLoviIkwQ7Jik+qXgRpWMwKCt43Wz8tRWSKkriMW2NiY8a4Y4qMi0xVXYhBZzMJHHAyoowvpiwoaLQoD0CxQv5snkIAY/QiP6Jz0sxXqD+GYSK5AWlxaKAJ8Bbtjmr+FrWC3wio259UauBJd7Cvy5QU3yMA6LXU56jFdnWbov+ZMtMQsResjC/oEcHpvJANXJ9IG0cbSg8DOFEGcIaHpGx72sIOKCX+WKgF/Tva0xWuZ3tOPtoNAtL5KiwuHk/jSu1uf/TRX4EE8ocTf4487/751BpGAwWKpq+dcCivs=
+  template:
+    metadata:
+      name: customers-db
+      namespace: customers

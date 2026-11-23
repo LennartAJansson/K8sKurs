@@ -1,0 +1,11 @@
+groups:
+  - name: mysql_alerts
+    rules:
+      - alert: MySQLDown
+        expr: mysql_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MySQL-instansen är nere"
+          description: "MySQL på {{ $labels.instance }} har varit okontaktbar i mer än 1 minut."

@@ -25,6 +25,8 @@ public class PersonsDbContext(DbContextOptions<PersonsDbContext> options) : DbCo
             e.Property(p => p.FirstName).HasMaxLength(100).IsRequired();
             e.Property(p => p.LastName).HasMaxLength(100).IsRequired();
             e.Property(p => p.Email).HasMaxLength(200);
+
+         
         });
     }
 }

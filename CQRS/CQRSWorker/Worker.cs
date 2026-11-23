@@ -1,8 +1,11 @@
 using System.Diagnostics;
+
 using CQRSWorker.Contracts;
 using CQRSWorker.Data;
 using CQRSWorker.Telemetry;
+
 using Microsoft.EntityFrameworkCore;
+
 using NATS.Client.JetStream;
 using NATS.Client.JetStream.Models;
 
@@ -92,14 +95,25 @@ public class Worker(
         try
         {
             await using var db = await dbFactory.CreateDbContextAsync(ct);
+            string result = string.Empty;
 
-            var result = msg.Subject switch
+            using var transaction = await db.Database.BeginTransactionAsync(ct);
+            try
             {
-                PersonSubjects.Create => await CreateAsync(db, command, ct),
-                PersonSubjects.Update => await UpdateAsync(db, command, ct),
-                PersonSubjects.Delete => await DeleteAsync(db, command, ct),
-                _ => "okänt subjekt - ignoreras",
-            };
+                result =  msg.Subject switch
+                {
+                    PersonSubjects.Create => await CreateAsync(db, command, ct),
+                    PersonSubjects.Update => await UpdateAsync(db, command, ct),
+                    PersonSubjects.Delete => await DeleteAsync(db, command, ct),
+                    _ => "okänt subjekt - ignoreras",
+                };
+                await transaction.CommitAsync(cancellationToken: ct);
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync(ct);
+                throw;
+            }
 
             await msg.AckAsync(cancellationToken: ct);
             activity?.SetTag("cqrs.result", result);
