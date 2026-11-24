@@ -14,6 +14,8 @@
 #   - Prometheus skrapade inte collectorns metrics-port - annotationer
 #     tillagda på otel-collector-Servicen.
 #   - Lokis memcached-cachar (ca 10 GB minnesbegäran) avstängda.
+#   - Steg 4: ingresserna får egna certifikat från cert-manager (local-ca),
+#     se ingress.yaml. Det delade mkcert-certifikatet (steg 2) är reserv.
 #   - Steg 2 skapar nu själv TLS-hemligheten med mkcert. Tidigare hänvisade
 #     traefik-tls.yaml till createk3d-home.ps1, som inte finns i k3d-mappen.
 # ==============================================================================
@@ -98,7 +100,25 @@ try {
     Write-Host "--- Driftsätter OTel, Faro och Ingress-regler ---" -ForegroundColor Cyan
     kubectl apply -f otel-collector.yaml
     kubectl apply -f faro-collector.yaml
+
+    # Varje ingress i ingress.yaml begär ett eget certifikat från cert-manager
+    # (ClusterIssuer local-ca). Finns inte local-ca faller ingresserna tillbaka
+    # på det delade mkcert-certifikatet (TLSStore default) - men säg det högt.
+    $hasIssuer = $false
+    kubectl get clusterissuer local-ca 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) { $hasIssuer = $true }
+    else {
+        Write-Warning "ClusterIssuer 'local-ca' finns inte (cert-manager ej installerat?) - ingresserna får det delade certifikatet."
+        Write-Warning "Installera cert-manager (Platform\scripts\install-cert-manager.ps1) och kör sedan om detta skript."
+    }
     kubectl apply -f ingress.yaml
+
+    if ($hasIssuer) {
+        Write-Host "--- Väntar på per-tjänst-certifikaten (max 2 min) ---" -ForegroundColor Cyan
+        foreach ($c in "grafana", "prometheus", "loki", "tempo", "otel", "otel-grpc", "faro") {
+            kubectl wait --for=condition=Ready "certificate/$c-tls" -n $Namespace --timeout=120s
+        }
+    }
 
     # Dashboards som kod (kväll 6) - se deploy-dashboards.ps1.
     Write-Host "--- Läser in dashboards ---" -ForegroundColor Cyan

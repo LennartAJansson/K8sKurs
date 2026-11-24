@@ -427,3 +427,33 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# --- Känsligt: standardblock från K3S Platform (templates/security.gitignore) ---
+# Lösenord, nycklar och certifikat hör aldrig hemma i Git.
+# SealedSecret-filer (*-sealed.yaml) är krypterade och SKA checkas in.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.jks
+*.snk
+rootCA*
+id_rsa*
+*.kubeconfig
+kubeconfig*
+secrets.json
+appsettings.Production.json
+appsettings.Local.json
+appsettings.*.local.json
+*.plain.yaml
+*-plain.yaml
+*-plaintext*.yaml
+*.dump
+*.bak
+*.log
+TestResults/
+.claude/settings.local.json
+.vs/

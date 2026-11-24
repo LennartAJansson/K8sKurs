@@ -1,16 +1,28 @@
 # =============================================================================
 # Ingress för monitoreringsstacken - k3d-home (*.local istället för *.ubk3s)
+#
+# Varje ingress får ett EGET certifikat från cert-manager (ClusterIssuer
+# local-ca): annotationen cert-manager.io/cluster-issuer + tls.secretName
+# <namn>-tls gör att cert-managers ingress-shim skapar Certificate och Secret.
+# Samma mönster som plattformens appar. Kräver att cert-manager och local-ca
+# finns (Platform\scripts\install-cert-manager.ps1). Utan dem saknas Secreten
+# och Traefik faller tillbaka på det delade mkcert-certifikatet (TLSStore
+# default, traefik-tls.yaml) - ingenting går sönder, men certifikatet är då
+# det gemensamma.
 # =============================================================================
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: grafana
   namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: local-ca
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
         - grafana.local
+      secretName: grafana-tls
   rules:
     - host: grafana.local
       http:
@@ -29,11 +41,14 @@ kind: Ingress
 metadata:
   name: prometheus
   namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: local-ca
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
         - prometheus.local
+      secretName: prometheus-tls
   rules:
     - host: prometheus.local
       http:
@@ -52,11 +67,14 @@ kind: Ingress
 metadata:
   name: loki
   namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: local-ca
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
         - loki.local
+      secretName: loki-tls
   rules:
     - host: loki.local
       http:
@@ -75,11 +93,14 @@ kind: Ingress
 metadata:
   name: tempo
   namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: local-ca
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
         - tempo.local
+      secretName: tempo-tls
   rules:
     - host: tempo.local
       http:
@@ -102,11 +123,14 @@ kind: Ingress
 metadata:
   name: otel-http
   namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: local-ca
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
         - otel.local
+      secretName: otel-tls
   rules:
     - host: otel.local
       http:
@@ -127,12 +151,14 @@ metadata:
   name: otel-grpc
   namespace: monitoring
   annotations:
+    cert-manager.io/cluster-issuer: local-ca
     traefik.ingress.kubernetes.io/service.serversscheme: h2c
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
         - otel-grpc.local
+      secretName: otel-grpc-tls
   rules:
     - host: otel-grpc.local
       http:
@@ -152,11 +178,14 @@ kind: Ingress
 metadata:
   name: faro-collector
   namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: local-ca
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
         - faro.local
+      secretName: faro-tls
   rules:
     - host: faro.local
       http:
